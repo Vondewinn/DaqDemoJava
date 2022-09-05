@@ -117,6 +117,10 @@ public class MainActivity extends AppCompatActivity {
         tvRevDataNum = findViewById(R.id.rev_num_tv);
     }
 
+    /*
+    * @fun 设置内部点击事件
+    * */
+
     private void setInnerOnClickListener() {
         btn250K.setOnClickListener(v -> CanBusHelper.sendCommand(Command.Send.Switch250K()));
         btn500K.setOnClickListener(v -> CanBusHelper.sendCommand(Command.Send.Switch500K()));
@@ -142,6 +146,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /*
+     * @fun 发送CAN数据
+     * */
     private void sendCanData(FrameFormat frameFormat) {
         String strID = etID.getText().toString();
         String strData = etData.getText().toString();
