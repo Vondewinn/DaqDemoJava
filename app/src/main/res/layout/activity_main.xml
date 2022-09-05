@@ -1,18 +1,158 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:orientation="horizontal">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <ListView
+        android:id="@+id/list_data"
+        android:layout_weight="3"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/background"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:background="@drawable/background"
+        android:layout_weight="7"
+        android:orientation="vertical">
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Button
+                android:layout_weight="1"
+                android:text="通道1"
+                android:id="@+id/setcan1btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"/>
+            <Button
+                android:layout_weight="1"
+                android:text="通道2"
+                android:id="@+id/setcan2btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"/>
+        </LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Button
+                android:layout_weight="1"
+                android:text="250k"
+                android:id="@+id/set250kbtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"/>
+            <Button
+                android:layout_weight="1"
+                android:text="500k"
+                android:id="@+id/set500kbtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Button
+                android:layout_weight="1"
+                android:id="@+id/open_can_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="打开CAN"
+                android:textColor="@color/black"/>
+            <Button
+                android:layout_weight="1"
+                android:id="@+id/close_can_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="关闭CAN"
+                android:textColor="@color/black"/>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/clean_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="清空统计"
+            android:textColor="@color/black"/>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Button
+                android:layout_weight="1"
+                android:id="@+id/std_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="标准帧"
+                android:textColor="@color/black"/>
+            <Button
+                android:layout_weight="1"
+                android:id="@+id/ext_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="扩展帧"
+                android:textColor="@color/black"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="ID:    "
+                android:textSize="18sp"
+                android:textColor="@color/black"/>
+            <EditText
+                android:id="@+id/can_id_et"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="0x37b"
+                android:hint="请输入CANId" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="数据:"
+                android:textSize="18sp"
+                android:textColor="@color/black"/>
+            <EditText
+                android:id="@+id/can_data_et"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="0102030400000000"
+                android:hint="请输入数据" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/send_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="发送"
+            android:textColor="@color/black"/>
+
+    </LinearLayout>
+
+
+</LinearLayout>

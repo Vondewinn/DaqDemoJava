@@ -39,6 +39,14 @@ public class DataUtils {
         return newData;
     }
 
+    public static byte[] int2byte(String string, int byteLength) {
+        byte[] data = new byte[byteLength];
+        for (int j = 0; j < data.length; j++) {
+            data[j] = (byte) (Integer.valueOf(string.substring(j * 2, j * 2 + 2), 16) & 0xff);
+        }
+        return data;
+    }
+
     public static int byte2int(byte b) {
         return b & 0xff;
     }
