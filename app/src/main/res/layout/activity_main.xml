@@ -79,12 +79,34 @@
                 android:textColor="@color/black"/>
         </LinearLayout>
 
-        <Button
-            android:id="@+id/clean_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="清空统计"
-            android:textColor="@color/black"/>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/clean_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="清空统计"
+                android:textColor="@color/black"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:text="接收数： "
+                android:textSize="15sp"
+                android:textColor="@color/black"/>
+            <TextView
+                android:id="@+id/rev_num_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="0"
+                android:textSize="15sp"
+                android:textColor="@color/black"/>
+        </LinearLayout>
+
+
 
         <LinearLayout
             android:orientation="horizontal"

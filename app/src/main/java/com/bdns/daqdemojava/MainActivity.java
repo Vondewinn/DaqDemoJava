@@ -6,10 +6,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.canapi.Command;
@@ -27,7 +29,7 @@ import static com.bdns.daqdemojava.DataUtils.int2byte;
 
 
 public class MainActivity extends AppCompatActivity {
-
+    private CanBusHelper canBusHelper;
     private SerialHelper ttyS0;
     private String strData;
 
@@ -36,17 +38,18 @@ public class MainActivity extends AppCompatActivity {
     private List<Data> mData = null;
     private Context mContext = null;
     private int flag;
+    private int revDataNum = 0;
     private boolean _isStd = true;
 
+    private TextView tvRevDataNum;
     private EditText etID, etData;
     private Button btnSend, btn250K, btn500K, btnOpenCan, btnCloseCan, btnClean, btnStd, btnExt;
-    private byte[] data = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x00};
-    private CanBusHelper canBusHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);    // 默认在初始化时不弹出软键盘
         mContext = MainActivity.this;
         bindViews();
         mData = new LinkedList<Data>();
@@ -62,9 +65,11 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         myAdapter.add(new Data(handleCanData(bytes)));
+                        revDataNum ++;
+                        tvRevDataNum.setText(revDataNum + "");
                         flag ++;
                         listData.smoothScrollToPosition(myAdapter.getCount());
-                        if (flag == 1000) {
+                        if (flag == 1000) { // 当显示数量大于1000个时自动清空界面
                             flag = 0;
                             myAdapter.clear();
                         }
@@ -80,23 +85,18 @@ public class MainActivity extends AppCompatActivity {
         ttyS0.uartRevData(new ProcessData() {
             @Override
             public void process(byte[] revData, int len) {
-
                 String dataOut = "";
                 String aa = new String(revData, 0, len);
                 strData = strData + aa;
-
                 int strGGA = strData.indexOf("$GPGGA,");
                 String subData = strData.substring(strGGA+"$GPGGA,".length());
-
                 if (subData.contains("$GPGGA,")){
                     dataOut = strData.substring(0, strGGA+subData.indexOf("$GPGGA,") + "$GPGGA,".length());
                     strData = subData.substring(subData.indexOf("$GPGGA,"));
                 }
-
                 if (!dataOut.equals("")) {
                     Log.i("TAG", "process: " + dataOut);
                 }
-
             }
         });
 
@@ -114,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
         etID = findViewById(R.id.can_id_et);
         etData = findViewById(R.id.can_data_et);
         btnSend = findViewById(R.id.send_btn);
+        tvRevDataNum = findViewById(R.id.rev_num_tv);
     }
 
     private void setInnerOnClickListener() {
@@ -121,7 +122,11 @@ public class MainActivity extends AppCompatActivity {
         btn500K.setOnClickListener(v -> CanBusHelper.sendCommand(Command.Send.Switch500K()));
         btnOpenCan.setOnClickListener(v -> canBusHelper.open());
         btnCloseCan.setOnClickListener(v -> canBusHelper.close());
-        btnClean.setOnClickListener(v -> myAdapter.clear());
+        btnClean.setOnClickListener((v) -> {
+            revDataNum = 0;
+            tvRevDataNum.setText(revDataNum + "");
+            myAdapter.clear();
+        });
         btnStd.setOnClickListener(v -> _isStd = true);
         btnExt.setOnClickListener(v -> _isStd = false);
         btnSend.setOnClickListener((v) -> {
