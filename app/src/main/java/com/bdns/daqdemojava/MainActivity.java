@@ -17,6 +17,10 @@ import android.widget.Toast;
 import com.android.canapi.Command;
 import com.android.canapi.DataType;
 import com.android.canapi.FrameFormat;
+import com.bdns.daqdemojava.bean.GpsDataBean;
+import com.bdns.daqdemojava.dataprocessing.Gps;
+import com.bdns.daqdemojava.manager.NetWorkServiceNtrip;
+import com.bdns.daqdemojava.utils.ByteUtil;
 import com.lc31.uartsdk.ProcessData;
 import com.lc31.uartsdk.SerialHelper;
 import com.scau.cansdk.CanBusHelper;
@@ -31,7 +35,10 @@ import static com.bdns.daqdemojava.DataUtils.int2byte;
 public class MainActivity extends AppCompatActivity {
     private CanBusHelper canBusHelper;
     private SerialHelper ttyS0;
+    private SerialHelper ttyS6;
     private String strData;
+    private NetWorkServiceNtrip netWorkServiceNtrip;
+    private GpsDataBean gpsDataBean;
 
     private ListView listData;
     private MyAdapter myAdapter = null;
@@ -50,12 +57,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);    // 默认在初始化时不弹出软键盘
-        mContext = MainActivity.this;
+        initParams();
         bindViews();
         mData = new LinkedList<Data>();
         myAdapter = new MyAdapter(mContext, (LinkedList<Data>)mData);
         listData.setAdapter(myAdapter);
 
+        // 初始化CAN总线
         canBusHelper = CanBusHelper.getInstance(this);
         canBusHelper.getData(new com.scau.cansdk.ProcessData() {
             @Override
@@ -78,8 +86,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // 初始化按键监听
         setInnerOnClickListener();
 
+        // ttyS6
+        ttyS6 = new SerialHelper("ttyS6", 115200);
+        ttyS6.open();
+
+        // 打开GPS数据串口
         ttyS0 = new SerialHelper("ttyS0", 115200);
         ttyS0.open();
         ttyS0.uartRevData(new ProcessData() {
@@ -96,12 +110,42 @@ public class MainActivity extends AppCompatActivity {
                 }
                 if (!dataOut.equals("")) {
                     Log.i("TAG", "process: " + dataOut);
+                    // GPS数据解析
+                    GpsDataBean gpsDataBean = Gps.dataAnalysis(dataOut);
+//                    Log.i("TAG", "process: " + gpsDataBean.toString());
+                    // 设置给基站发送GGA数据
+                    netWorkServiceNtrip.setGGA(gpsDataBean.getGpgga());
+                    // 转发
+                    ttyS6.send(gpsDataBean.toString().getBytes());
                 }
             }
         });
 
+        // 初始化差分基站连接，获取差分数据
+        netWorkServiceNtrip = new NetWorkServiceNtrip(
+                this,
+                "rtk.ntrip.qxwz.com",
+                "8002",
+                "tucao006",
+                "7ce0096",
+                "AUTO");
+        netWorkServiceNtrip.getDifferentialData();
+        // 初始化接收差分数据
+        initDiffDataRev();
+
     }
 
+    /*
+     * @fun 初始化数据
+     * */
+    private void initParams() {
+        mContext = MainActivity.this;
+        gpsDataBean = new GpsDataBean();
+    }
+
+    /*
+     * @fun 绑定界面
+     * */
     private void bindViews() {
         listData = findViewById(R.id.list_data);
         btn250K = findViewById(R.id.set250kbtn);
@@ -120,7 +164,6 @@ public class MainActivity extends AppCompatActivity {
     /*
     * @fun 设置内部点击事件
     * */
-
     private void setInnerOnClickListener() {
         btn250K.setOnClickListener(v -> CanBusHelper.sendCommand(Command.Send.Switch250K()));
         btn500K.setOnClickListener(v -> CanBusHelper.sendCommand(Command.Send.Switch500K()));
@@ -145,6 +188,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void initDiffDataRev() {
+        netWorkServiceNtrip.setOnDataReceiveListener(dataReceiveListener);
+    }
+
+    private NetWorkServiceNtrip.OnDataReceiveListener dataReceiveListener = new NetWorkServiceNtrip.OnDataReceiveListener() {
+        @Override
+        public void OnDataReceive(byte[] buffer, int size) {
+            ttyS0.send(buffer);
+        }
+    };
 
     /*
      * @fun 发送CAN数据
@@ -214,8 +268,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        canBusHelper.close();
-        ttyS0.close();
+        if (canBusHelper.isOpen()) canBusHelper.close();
+        if (ttyS0.isOpen()) ttyS0.close();
+        if (ttyS6.isOpen()) ttyS6.close();
     }
 
 
